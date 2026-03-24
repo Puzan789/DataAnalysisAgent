@@ -36,37 +36,6 @@ Respond in **valid JSON only** following this format:
 """
 
 
-def sql_prompt(user_query, category_names, subcategory_names, suggestions):
-
-    return f"""
-You are a SQL generation agent for a database.
-
-**User Query:** "{user_query}"
-
-### Available Filters
-- **Available categories**: {category_names}
-- **Available subcategories**: {subcategory_names}
-
-### Rules
-
-1. **Always include**: the primary table's `id` and `name` columns
-
-2. **Include additional columns ONLY if user asks** for specific details
-
-3. **JOIN only when needed** based on user's query requirements
-
-4. **Use flexible pattern matching**: `LIKE '%value%'` with `lower()` for case-insensitive searches
-
-5. **Limit**: `LIMIT 8` (unless user specifies otherwise)
-
-6. **Safety**: SELECT only, no `SELECT *`, explicit JOINs
-
-{suggestions}
-
-Generate the SQL query.
-"""
-
-
 def get_generation_prompt(results=None):
     rows = []
 
