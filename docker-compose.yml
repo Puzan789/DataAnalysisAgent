@@ -1,0 +1,52 @@
+services:
+  backend:
+    container_name: data_analysis_backend
+    build:
+      context: .
+    env_file: .env
+    restart: on-failure
+    ports:
+      - "7000:7000"
+    depends_on:
+      - mongodb
+      - qdrant
+    volumes:
+      - ./static:/app/static
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./main.py:/app/main.py
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - data_analysis_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: on-failure
+    env_file: .env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - data_analysis_network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: on-failure
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    networks:
+      - data_analysis_network
+
+volumes:
+  mongodb_data:
+  qdrant_storage:
+
+networks:
+  data_analysis_network:
