@@ -24,13 +24,13 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "mydb"
 
-    # Schema collection name = "postgres"
+    # Schema collection name
     TABLE_DESCRIPTION_COLLECTION: str
     DB_SCHEMA_COLLECTION: str
     COMPANY_COLLECTION: str
 
     # Auth
-    AUTH_SECRET: str 
+    AUTH_SECRET: str
     AUTH_TOKEN_EXP_MIN: int = 1440
 
     # CORS
