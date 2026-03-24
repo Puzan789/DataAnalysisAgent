@@ -1,0 +1,40 @@
+# VCS
+.git/
+.gitignore
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local env/config
+.env
+.env.*
+.vscode/
+.idea/
+
+# Frontend artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env
+frontend/.env.*
+
+# Logs and runtime outputs
+*.log
+mlruns/
+mlartifacts/
+
+# Data / notebooks not needed in image build
+notebooks/
+research/
+.research/
+
+# OS junk
+.DS_Store
+Thumbs.db
