@@ -337,8 +337,12 @@ User Query
 - [ ] **Interactive Data Visualizations** -- Agent-generated charts rendered in the chat UI
 - [ ] **Smart Chart Selection** -- Agent automatically picks the best chart type based on the SQL results and query intent
 - [ ] **Chart Interactivity** -- Hover tooltips, click to drill down, zoom, and export (PNG/SVG)
-- [ ] **Dashboard Pinning** -- Save generated charts to a personal dashboard for quick 
+- [ ] **Dashboard Pinning** -- Save generated charts to a personal dashboard for quick
 reference.
+
+## Demo
+
+<video src="assets/demo.mp4" controls width="100%"></video>
 
 
 
