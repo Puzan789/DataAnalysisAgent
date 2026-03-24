@@ -342,7 +342,11 @@ reference.
 
 ## Demo
 
-<video src="assets/demo.mp4" controls width="100%"></video>
+
+
+https://github.com/user-attachments/assets/f946c808-686d-4f3a-9a9e-78da8ce6f827
+
+
 
 
 
