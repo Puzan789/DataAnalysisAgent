@@ -21,6 +21,7 @@ export default function App() {
     newChat,
     deleteThread,
     sendMessage,
+    editMessage,
   } = useChat(auth.user?.id || null, auth.token || null)
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -117,7 +118,12 @@ export default function App() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
               {messages.map((msg) => (
-                <ChatMessage key={msg.id} message={msg} />
+                <ChatMessage
+                  key={msg.id}
+                  message={msg}
+                  onEdit={editMessage}
+                  isStreaming={isStreaming}
+                />
               ))}
             </div>
           </div>

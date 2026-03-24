@@ -19,12 +19,12 @@ class Settings(BaseSettings):
 
     # PostgreSQL
     POSTGRES_USERNAME: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_PASSWORD: str
     POSTGRES_HOST: str = "host.docker.internal"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "mydb"
 
-    # Schema collection name
+    # Schema collection name = "postgres"
     TABLE_DESCRIPTION_COLLECTION: str
     DB_SCHEMA_COLLECTION: str
     COMPANY_COLLECTION: str

@@ -1,8 +1,16 @@
+export interface Step {
+  type: string
+  label: string
+  detail?: string
+  timestamp: Date
+}
+
 export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  steps?: Step[]
 }
 
 export interface Thread {
@@ -16,6 +24,7 @@ export interface Thread {
 
 export interface StreamCallbacks {
   onToken: (token: string) => void
+  onStep: (step: { type: string; label: string; detail?: string }) => void
   onIds: (ids: string[]) => void
   onDone: () => void
   onError: (error: Error) => void

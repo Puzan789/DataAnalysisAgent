@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { streamChat, fetchThreads, fetchMessages, removeThread } from '@/lib/api'
-import type { Message, Thread } from '@/types'
+import type { Message, Thread, Step } from '@/types'
 
 export function useChat(userId: string | null, token: string | null) {
   const [threads, setThreads] = useState<Thread[]>([])
@@ -99,7 +99,7 @@ export function useChat(userId: string | null, token: string | null) {
       setMessages((prev) => [...prev, userMsg, assistantMsg])
 
       await streamChat(query, threadId, userId, {
-        onToken: (token) => {
+        onToken: (tok) => {
           if (abortRef.current) return
           setMessages((prev) => {
             const updated = [...prev]
@@ -107,7 +107,22 @@ export function useChat(userId: string | null, token: string | null) {
             if (last?.role === 'assistant') {
               updated[updated.length - 1] = {
                 ...last,
-                content: last.content + token,
+                content: last.content + tok,
+              }
+            }
+            return updated
+          })
+        },
+        onStep: (step) => {
+          if (abortRef.current) return
+          setMessages((prev) => {
+            const updated = [...prev]
+            const last = updated[updated.length - 1]
+            if (last?.role === 'assistant') {
+              const newStep: Step = { ...step, timestamp: new Date() }
+              updated[updated.length - 1] = {
+                ...last,
+                steps: [...(last.steps || []), newStep],
               }
             }
             return updated
@@ -140,6 +155,19 @@ export function useChat(userId: string | null, token: string | null) {
     [activeThreadId, isStreaming, loadThreads, token, userId]
   )
 
+  const editMessage = useCallback(
+    async (messageId: string, newContent: string) => {
+      if (isStreaming || !userId) return
+      const idx = messages.findIndex((m) => m.id === messageId)
+      if (idx === -1 || messages[idx].role !== 'user') return
+
+      // Trim messages after the edited one and resend
+      setMessages(messages.slice(0, idx))
+      await sendMessage(newContent)
+    },
+    [isStreaming, messages, sendMessage, userId]
+  )
+
   return {
     threads,
     activeThreadId,
@@ -150,5 +178,6 @@ export function useChat(userId: string | null, token: string | null) {
     newChat,
     deleteThread,
     sendMessage,
+    editMessage,
   }
 }
