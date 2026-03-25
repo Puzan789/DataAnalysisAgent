@@ -146,9 +146,10 @@ class SqlAgent:
                 format_instructions=parser.get_format_instructions(),
             )
 
-            eval_messages = [SystemMessage(content=evaluation_prompt)] + state.get(
-                "messages", []
-            )
+            eval_messages = [
+                SystemMessage(content=evaluation_prompt),
+                HumanMessage(content=query),
+            ]
 
             evaluation_llm = self.llm.with_structured_output(EvaluationResponse)
             result = await evaluation_llm.ainvoke(eval_messages)
@@ -204,11 +205,21 @@ class SqlAgent:
             state.get("agent_outputs", {}).get("sql_agents", {}).get("result", {})
         )
 
+        query = ""
+        for msg in reversed(state.get("messages", [])):
+            if isinstance(msg, HumanMessage):
+                query = msg.content
+                break
+            elif hasattr(msg, "type") and msg.type == "human":
+                query = msg.content
+                break
+
         try:
-            generation_prompt = get_generation_prompt(results=sql_results)
-            desc_messages = [SystemMessage(content=generation_prompt)] + state.get(
-                "messages", []
-            )
+            generation_prompt = get_generation_prompt(results=sql_results, query=query)
+            desc_messages = [
+                SystemMessage(content=generation_prompt),
+                HumanMessage(content=query),
+            ]
 
             gen_result = await self.llm.ainvoke(desc_messages)
             if hasattr(gen_result, "content"):
