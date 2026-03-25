@@ -21,6 +21,12 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
 - View vector store statistics (points, vectors, collection info)
 - Full database overview with table counts, row counts, and data sizes
 
+### Interactive Data Visualization
+- **Smart Chart Selection** -- After a SQL query returns results, click the "Generate Chart" button to have the LLM automatically pick the best chart type (bar, line, pie, area, grouped bar, stacked bar, multi-line) based on the data shape and your question
+- **Vega-Lite Rendering** -- Charts are rendered as interactive Vega-Lite specs using vega-embed with hover tooltips, export (PNG/SVG), and dark theme support
+- **Chart Adjustment** -- Modify an existing chart by changing the chart type, axes, color encoding, or grouping through a dedicated adjustment endpoint
+- **Background Generation** -- Chart generation runs as a background task with polling, so it doesn't block the chat flow
+
 ### Chat History & Sessions
 - MongoDB-backed conversation persistence
 - Multiple chat threads per user
@@ -55,6 +61,8 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
 | **react-markdown** | Markdown rendering in chat |
 | **Lucide React** | Icons |
 
+| **Vega-Lite + vega-embed** | Interactive chart rendering |
+
 ### Note: I vibecoded the frontend
 
 ## Project Structure
@@ -78,6 +86,7 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
 │   │
 │   ├── api/v1/                    # API endpoints
 │   │   ├── chat.py                # Chat streaming endpoint
+│   │   ├── chart.py               # Chart generation & adjustment endpoints
 │   │   ├── auth.py                # Signup / login
 │   │   ├── databaseinfo.py        # Database exploration endpoints
 │   │   ├── vectordb.py            # Vector store management
@@ -111,7 +120,8 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
 │   ├── services/                  # Business logic
 │   │   ├── auth_service.py        # User registration / login
 │   │   ├── message_service.py     # Chat session management
-│   │   └── database_service.py    # DB exploration queries
+│   │   ├── database_service.py    # DB exploration queries
+│   │   └── chart_service.py       # LLM-based chart generation & adjustment
 │   │
 │   ├── core/                      # Core utilities
 │   │   ├── container.py           # ServiceContainer (dependency injection)
@@ -121,7 +131,8 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
 │   │   └── responses.py           # API response wrapper
 │   │
 │   ├── prompts/
-│   │   └── _prompts.py            # LLM prompt templates
+│   │   ├── _prompts.py            # LLM prompt templates (routing, SQL generation, validation, response)
+│   │   └── chart_prompts.py       # Chart generation & adjustment prompts
 │   │
 │   ├── schemas/                   # Pydantic request/response models
 │   │   ├── llm_response_schemas.py
@@ -135,13 +146,15 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
         ├── App.tsx                # Main app component
         ├── components/
         │   ├── ChatInput.tsx      # Chat input box
-        │   ├── ChatMessage.tsx    # Message display with markdown
+        │   ├── ChatMessage.tsx    # Message display with markdown & chart button
+        │   ├── VegaChart.tsx      # Vega-Lite chart renderer (loading, error, finished states)
         │   ├── Dashboard.tsx      # Database explorer & vector stats
         │   ├── AuthForm.tsx       # Login / signup form
         │   ├── Sidebar.tsx        # Navigation & chat threads
         │   └── EmptyState.tsx     # Initial state with prompts
         ├── hooks/
         │   ├── useChat.ts         # Chat state management
+        │   ├── useChart.ts        # Chart generation polling & state
         │   └── useAuth.ts         # Auth state management
         ├── lib/
         │   ├── api.ts             # API client
@@ -290,6 +303,11 @@ curl http://localhost:7000/health/db
 | `GET` | `/api/v1/db/tables/{table}/schema` | Get table schema |
 | `GET` | `/api/v1/db/tables/{table}/data` | Get paginated table data |
 | `GET` | `/api/v1/db/relationships` | Get foreign key relationships |
+| `POST` | `/api/v1/charts` | Start chart generation (returns query_id) |
+| `GET` | `/api/v1/charts/{query_id}` | Poll chart generation result |
+| `PATCH` | `/api/v1/charts/{query_id}` | Stop chart generation |
+| `POST` | `/api/v1/charts/adjustments` | Start chart adjustment |
+| `GET` | `/api/v1/charts/adjustments/{query_id}` | Poll chart adjustment result |
 | `POST` | `/api/v1/vector/initialize_schema` | Index schema into vector store |
 | `GET` | `/api/v1/vector/stats` | Vector store statistics |
 | `GET` | `/health` | Health check |
@@ -329,21 +347,48 @@ User Query
    │  Response  │
    │  (Streamed │
    │   via SSE) │
-   └────────────┘
+   └──────┬─────┘
+          │
+          ▼
+   ┌──────────────┐
+   │ Generate     │ ── User clicks "Generate Chart" button
+   │ Chart        │
+   │ (Background) │
+   │              │
+   │ 1. Preprocess│
+   │    data      │
+   │ 2. LLM picks │
+   │    chart type│
+   │ 3. Generate  │
+   │    Vega-Lite │
+   │ 4. Validate  │
+   │    & render  │
+   └──────┬───────┘
+          │
+          ▼
+   ┌──────────────┐
+   │  Vega-Lite   │
+   │  Chart       │
+   │  (Interactive│
+   │   with hover │
+   │   & export)  │
+   └──────────────┘
 ```
 
 ## TODO
 
-- [ ] **Interactive Data Visualizations** -- Agent-generated charts rendered in the chat UI
-- [ ] **Smart Chart Selection** -- Agent automatically picks the best chart type based on the SQL results and query intent
-- [ ] **Chart Interactivity** -- Hover tooltips, click to drill down, zoom, and export (PNG/SVG)
-- [ ] **Dashboard Pinning** -- Save generated charts to a personal dashboard for quick
-reference.
+- [x] **Interactive Data Visualizations** -- Agent-generated Vega-Lite charts rendered in the chat UI with dark theme
+- [x] **Smart Chart Selection** -- LLM automatically picks the best chart type (bar, line, pie, area, grouped bar, stacked bar, multi-line) based on data shape and query intent
+- [x] **Chart Interactivity** -- Hover tooltips, export (PNG/SVG) via vega-embed
+- [ ] **Dashboard Pinning** -- Save generated charts to a personal dashboard for quick reference
 
 ## Demo
 
-<video src="assets/demo.mp4" controls width="100%"></video>
 
+https://github.com/user-attachments/assets/f946c808-686d-4f3a-9a9e-78da8ce6f827
 
+### Chart Demo
+
+![Chart Demo](assets/image.png)
 
 

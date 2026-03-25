@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Bot, User, Copy, Check, Pencil, ChevronDown, ChevronRight, Database, Brain, Route, Zap } from 'lucide-react'
-import type { Message, Step } from '@/types'
+import { Bot, User, Copy, Check, Pencil, ChevronDown, ChevronRight, Database, Brain, Route, Zap, BarChart3 } from 'lucide-react'
+import type { Message, Step, ChartResult } from '@/types'
+import VegaChart from './VegaChart'
 
 function TypingIndicator() {
   return (
@@ -87,9 +88,12 @@ interface ChatMessageProps {
   message: Message
   onEdit?: (messageId: string, content: string) => void
   isStreaming?: boolean
+  chartResult?: ChartResult
+  onGenerateChart?: (messageId: string) => void
+  onCloseChart?: (messageId: string) => void
 }
 
-export default function ChatMessage({ message, onEdit, isStreaming }: ChatMessageProps) {
+export default function ChatMessage({ message, onEdit, isStreaming, chartResult, onGenerateChart, onCloseChart }: ChatMessageProps) {
   const isUser = message.role === 'user'
   const [copied, setCopied] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -195,9 +199,27 @@ export default function ChatMessage({ message, onEdit, isStreaming }: ChatMessag
               ) : (
                 <TypingIndicator />
               )}
+              {/* Chart rendering */}
+              {chartResult && (
+                <VegaChart result={chartResult} onClose={() => onCloseChart?.(message.id)} />
+              )}
             </>
           )}
         </div>
+
+        {/* Chart generate button - always visible when chart data available */}
+        {!editing && !isStreaming && message.content && !isUser && message.chartData && onGenerateChart && !chartResult && (
+          <div className="flex mt-2">
+            <button
+              onClick={() => onGenerateChart(message.id)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/30 text-brand-light hover:bg-brand/20 hover:border-brand/50 transition-colors text-xs font-medium"
+              title="Generate chart"
+            >
+              <BarChart3 size={14} />
+              <span>Generate Chart</span>
+            </button>
+          </div>
+        )}
 
         {/* Action buttons */}
         {!editing && !isStreaming && message.content && (

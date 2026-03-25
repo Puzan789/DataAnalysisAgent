@@ -9,6 +9,7 @@ dependencies = [
     "beanie>=2.0.0",
     "fastapi>=0.116.1",
     "ipykernel>=6.30.1",
+    "jsonschema",
     "langchain>=0.3.27",
     "langchain-community>=0.3.29",
     "langchain-groq>=0.3.7",

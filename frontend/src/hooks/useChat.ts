@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { streamChat, fetchThreads, fetchMessages, removeThread } from '@/lib/api'
-import type { Message, Thread, Step } from '@/types'
+import type { Message, Thread, Step, ChartData } from '@/types'
 
 export function useChat(userId: string | null, token: string | null) {
   const [threads, setThreads] = useState<Thread[]>([])
@@ -123,6 +123,20 @@ export function useChat(userId: string | null, token: string | null) {
               updated[updated.length - 1] = {
                 ...last,
                 steps: [...(last.steps || []), newStep],
+              }
+            }
+            return updated
+          })
+        },
+        onChartData: (chartData: ChartData) => {
+          if (abortRef.current) return
+          setMessages((prev) => {
+            const updated = [...prev]
+            const last = updated[updated.length - 1]
+            if (last?.role === 'assistant') {
+              updated[updated.length - 1] = {
+                ...last,
+                chartData,
               }
             }
             return updated
