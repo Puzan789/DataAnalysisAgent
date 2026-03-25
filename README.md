@@ -13,7 +13,7 @@ An AI-powered data analysis agent that lets you interact with your PostgreSQL da
 ### Vector Store Integration (Qdrant)
 - Automatically indexes your database schema (tables, columns, relationships, example queries) into Qdrant
 - Semantic search retrieves only the relevant schema context when generating SQL, keeping prompts efficient
-- Three collections: `table_descriptions`, `db_schema`, `companies`
+- Three collections: `table_descriptions`, `db_schema`
 
 ### Database Exploration Dashboard
 - Browse database tables, view schemas, and inspect data with pagination
