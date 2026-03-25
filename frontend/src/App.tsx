@@ -8,6 +8,7 @@ import Dashboard from '@/components/Dashboard'
 import AuthForm from '@/components/AuthForm'
 import { useChat } from '@/hooks/useChat'
 import { useAuth } from '@/hooks/useAuth'
+import { useChart } from '@/hooks/useChart'
 
 export default function App() {
   const auth = useAuth()
@@ -23,6 +24,15 @@ export default function App() {
     sendMessage,
     editMessage,
   } = useChat(auth.user?.id || null, auth.token || null)
+
+  const { chartResults, generateChart, clearChart } = useChart(auth.token || null)
+
+  const handleGenerateChart = (messageId: string) => {
+    const msg = messages.find((m) => m.id === messageId)
+    if (msg?.chartData) {
+      generateChart(messageId, msg.chartData)
+    }
+  }
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activePage, setActivePage] = useState<Page>('chat')
@@ -123,6 +133,9 @@ export default function App() {
                   message={msg}
                   onEdit={editMessage}
                   isStreaming={isStreaming}
+                  chartResult={chartResults[msg.id]}
+                  onGenerateChart={handleGenerateChart}
+                  onCloseChart={clearChart}
                 />
               ))}
             </div>

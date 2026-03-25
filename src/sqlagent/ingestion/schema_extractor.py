@@ -1,11 +1,7 @@
 from sqlalchemy import (
     create_engine,
-    select,
-    Table,
     MetaData,
-    distinct,
     text,
-    func,
     inspect,
 )
 from sqlalchemy.engine import Inspector

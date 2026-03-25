@@ -3,6 +3,9 @@ from ._prompts import (
     get_generation_prompt,
     get_validation_prompt,
     get_general_agent_prompt,
+    SQL_GENERATION_SYSTEM_PROMPT,
+    SQL_GENERATION_USER_PROMPT_TEMPLATE,
+    TEXT_TO_SQL_RULES,
 )
 
 __all__ = [
@@ -10,4 +13,7 @@ __all__ = [
     "get_generation_prompt",
     "get_validation_prompt",
     "get_general_agent_prompt",
+    "SQL_GENERATION_SYSTEM_PROMPT",
+    "SQL_GENERATION_USER_PROMPT_TEMPLATE",
+    "TEXT_TO_SQL_RULES",
 ]

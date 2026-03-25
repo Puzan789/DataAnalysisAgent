@@ -5,12 +5,33 @@ export interface Step {
   timestamp: Date
 }
 
+export interface ChartData {
+  sql: string
+  query: string
+  data: {
+    success: boolean
+    results: Record<string, unknown>[]
+    columns: string[]
+    row_count: number
+  }
+}
+
+export interface ChartResult {
+  status: 'generating' | 'fetching' | 'finished' | 'failed' | 'stopped' | 'not_found'
+  error?: string | null
+  reasoning?: string
+  chart_type?: string
+  chart_schema?: Record<string, unknown>
+}
+
 export interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
   steps?: Step[]
+  chartData?: ChartData
+  chartResult?: ChartResult
 }
 
 export interface Thread {
@@ -26,6 +47,7 @@ export interface StreamCallbacks {
   onToken: (token: string) => void
   onStep: (step: { type: string; label: string; detail?: string }) => void
   onIds: (ids: string[]) => void
+  onChartData?: (chartData: ChartData) => void
   onDone: () => void
   onError: (error: Error) => void
 }

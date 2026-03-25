@@ -128,6 +128,15 @@ async def create_graph_streaming(
                             yield step_event(
                                 "sql_executed", f"Query returned {row_count} rows"
                             )
+                            # Emit chart_data event so frontend can trigger chart generation
+                            yield {
+                                "event": "chart_data",
+                                "data": json.dumps({
+                                    "sql": sql_str if sql_list else "",
+                                    "query": request.query,
+                                    "data": result,
+                                }),
+                            }
                         elif result.get("error"):
                             yield step_event(
                                 "sql_error", "SQL execution error", result["error"]
